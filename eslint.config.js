@@ -102,29 +102,37 @@ export default tseslint.config(
     },
   },
 
-  // Frontend — feature isolation: a feature may not import from a sibling feature.
-  // Cross-feature reuse goes through src/shared/* (rules/architecture.md).
+  // Frontend — feature isolation: a feature may not import from a sibling
+  // feature. Enforced on the `@/` alias (no-restricted-imports), which is how
+  // the app actually imports (rules/architecture.md). `app/` may import features.
   {
-    files: ['frontend/src/**/*.{ts,tsx}'],
-    plugins: { import: importPlugin },
+    files: ['frontend/src/features/todos/**/*.{ts,tsx}'],
     rules: {
-      'import/no-restricted-paths': [
+      'no-restricted-imports': [
         'error',
         {
-          zones: [
+          patterns: [
             {
-              target: './frontend/src/features/auth',
-              from: './frontend/src/features',
-              except: ['./auth'],
+              group: ['@/features/auth', '@/features/auth/*', '../auth', '../auth/*'],
               message:
-                'Features must not import each other. Share via src/shared/ (feature-based architecture).',
+                'Features must not import each other. Share via src/shared/ or lift to app/.',
             },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['frontend/src/features/auth/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
             {
-              target: './frontend/src/features/todos',
-              from: './frontend/src/features',
-              except: ['./todos'],
+              group: ['@/features/todos', '@/features/todos/*', '../todos', '../todos/*'],
               message:
-                'Features must not import each other. Share via src/shared/ (feature-based architecture).',
+                'Features must not import each other. Share via src/shared/ or lift to app/.',
             },
           ],
         },

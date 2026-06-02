@@ -1,5 +1,5 @@
 # OpenAPI specification — Todo API
-# Status: auth + users (admin) endpoints implemented (Phase 2). Todos paths land in Phase 3.
+# Status: auth, users (admin), and todos endpoints implemented (Phases 2–3).
 
 openapi: 3.1.0
 info:
@@ -193,7 +193,111 @@ paths:
       responses:
         '200': { description: OK }
         '403': { $ref: '#/components/responses/Forbidden' }
-  # /todos (GET list, POST create), /todos/{id} (GET, PATCH, DELETE), /todos/{id}/restore — TBD Phase 3
+  /todos:
+    get:
+      summary: List the caller's todos (filter/sort/paginate/search)
+      tags: [todos]
+      parameters:
+        - { in: query, name: completed, schema: { type: boolean } }
+        - { in: query, name: priority, schema: { type: string, enum: [low, medium, high] } }
+        - { in: query, name: tag, schema: { type: string } }
+        - { in: query, name: search, schema: { type: string } }
+        - {
+            in: query,
+            name: sortBy,
+            schema: { type: string, enum: [createdAt, dueDate, priority] },
+          }
+        - { in: query, name: sortDir, schema: { type: string, enum: [asc, desc] } }
+        - {
+            in: query,
+            name: limit,
+            schema: { type: integer, minimum: 1, maximum: 100, default: 20 },
+          }
+        - { in: query, name: skip, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  todos: { type: array, items: { $ref: '#/components/schemas/Todo' } }
+                  pagination:
+                    type: object
+                    properties:
+                      total: { type: integer }
+                      limit: { type: integer }
+                      skip: { type: integer }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      summary: Create a todo
+      tags: [todos]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: { type: string, minLength: 1, maxLength: 200 }
+                description: { type: string, nullable: true, maxLength: 5000 }
+                priority: { type: string, enum: [low, medium, high] }
+                dueDate: { type: string, format: date-time, nullable: true }
+                tags: { type: array, items: { type: string } }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: { todo: { $ref: '#/components/schemas/Todo' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /todos/{id}:
+    parameters: [{ in: path, name: id, required: true, schema: { type: string } }]
+    get:
+      summary: Get one todo (owner-scoped; 404 if not owned)
+      tags: [todos]
+      responses:
+        '200': { description: OK }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      summary: Update a todo (owner-scoped)
+      tags: [todos]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string, nullable: true }
+                completed: { type: boolean }
+                priority: { type: string, enum: [low, medium, high] }
+                dueDate: { type: string, format: date-time, nullable: true }
+                tags: { type: array, items: { type: string } }
+      responses:
+        '200': { description: OK }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      summary: Soft-delete a todo (owner-scoped)
+      tags: [todos]
+      responses:
+        '204': { description: No Content }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /todos/{id}/restore:
+    post:
+      summary: Restore a soft-deleted todo (owner-scoped)
+      tags: [todos]
+      parameters: [{ in: path, name: id, required: true, schema: { type: string } }]
+      responses:
+        '200': { description: OK }
+        '404': { $ref: '#/components/responses/NotFound' }
 
 components:
   securitySchemes:
@@ -232,7 +336,19 @@ components:
       properties:
         user: { $ref: '#/components/schemas/User' }
         accessToken: { type: string, description: Short-lived JWT (send as Bearer) }
-    # Todo, Pagination — TBD Phase 3
+    Todo:
+      type: object
+      description: A todo owned by the authenticated user (userId is never exposed).
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string, nullable: true }
+        completed: { type: boolean }
+        priority: { type: string, enum: [low, medium, high] }
+        dueDate: { type: string, format: date-time, nullable: true }
+        tags: { type: array, items: { type: string } }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
   responses:
     BadRequest:
       description: Validation failed
