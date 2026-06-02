@@ -42,7 +42,7 @@ This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the ope
 
 ## Status
 
-**Phase 10 — Production-HA topology (Terraform authored + validated): complete.** Phases done so far:
+**Phase 11 — Disaster Recovery & Polish: complete. All roadmap phases (0–11) done.** Summary:
 
 - **Phase 0** — full documentation system + `.claude` operating system.
 - **Phase 1** — monorepo tooling: strict TS, ESLint (with Clean-Architecture + feature-isolation boundary rules), Prettier, Husky/commitlint, Zod config loaders, CI.
@@ -55,8 +55,9 @@ This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the ope
 - **Phase 8** — AWS infra as **Terraform** (cheapest tier): modules for VPC/SG, Graviton EC2 (Docker, SSM-only), ECR, S3+CloudFront SPA hosting, Secrets Manager, and the GitHub-OIDC deploy role. `terraform validate`-clean against the AWS provider; **not applied** (applying is billable — `infrastructure/terraform/README.md` + `infrastructure/aws/runbooks/deploy.md`).
 - **Phase 9** — observability: backend **EMF metrics** (RED + security counters) → CloudWatch `Todo/API` namespace; Terraform `observability` module (log group, SNS alerts, alarms for 5xx/latency/auth-failure spike, dashboard — validate-clean); SLO/error-budget docs. **113 tests** (85 backend + 19 frontend + 9 E2E).
 - **Phase 10** — production-HA Terraform (ADR-0009, validate-clean): `network-ha` (2-AZ public/private + NAT), `alb` (ALB + ACM TLS + Route53), `ecs` (Fargate, autoscaling, Secrets injection, rolling deploy + auto-rollback), `waf` (managed rules + rate limiting). Composed in `environments/prod`.
+- **Phase 11** — DR & polish: **accessibility pass** (added `<main>` landmarks, fixed a serious link-contrast WCAG violation, verified with `@axe-core/playwright` — **12 E2E incl. 3 a11y**); backups bucket (Terraform, versioned + Glacier lifecycle); runbooks (restore, rotate-keys, region-rebuild) + ops scripts; postmortem template; [docs/disaster-recovery.md](docs/disaster-recovery.md).
 
-Next: **Phase 11 — DR & polish** (backups, restore drill, runbooks, postmortem template) — or apply the infra to a real AWS account.
+**The roadmap is complete.** The remaining real-world step is to **apply** the Terraform to an AWS account (billable; see `infrastructure/aws/runbooks/deploy.md`) and flip on the gated CD workflows.
 
 ### Running locally
 

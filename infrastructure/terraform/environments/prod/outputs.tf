@@ -21,3 +21,7 @@ output "github_actions_role_arn" {
 output "alerts_topic_arn" {
   value = module.observability.alerts_topic_arn
 }
+
+output "backups_bucket" {
+  value = module.backups.bucket_name
+}

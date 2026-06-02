@@ -23,6 +23,11 @@ variable "spa_bucket_name" {
   description = "Globally-unique S3 bucket name for the SPA."
 }
 
+variable "backups_bucket_name" {
+  type        = string
+  description = "Globally-unique S3 bucket name for DB backups/exports."
+}
+
 variable "hosted_zone_name" {
   type        = string
   description = "Route53 hosted zone, e.g. example.com."

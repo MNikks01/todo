@@ -24,7 +24,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
           </Button>
         </div>
       </header>
-      {children}
+      <main>{children}</main>
     </div>
   );
 }

@@ -8,3 +8,5 @@ app_origin        = "https://app.example.com"
 alert_email       = "alerts@example.com"
 # The GitHub OIDC provider is typically created once (by the dev env); reuse it:
 create_oidc_provider = false
+
+backups_bucket_name = "todo-prod-backups-CHANGE-ME"
