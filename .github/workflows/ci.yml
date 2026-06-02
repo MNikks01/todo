@@ -100,16 +100,20 @@ jobs:
         env:
           GITLEAKS_CONFIG: .gitleaks.toml
 
+      # Install the Trivy binary directly (deterministic — avoids action tag drift).
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sh -s -- -b "$RUNNER_TEMP/trivy-bin"
+
       - name: Dependency & filesystem scan (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          severity: HIGH,CRITICAL
-          exit-code: '1'
-          ignore-unfixed: true
-          format: sarif
-          output: trivy.sarif
+        run: |
+          "$RUNNER_TEMP/trivy-bin/trivy" fs . \
+            --severity HIGH,CRITICAL \
+            --exit-code 1 \
+            --ignore-unfixed \
+            --format sarif \
+            --output trivy.sarif
 
       - name: Upload Trivy SARIF
         if: always()
