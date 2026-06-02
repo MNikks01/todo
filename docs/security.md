@@ -206,6 +206,20 @@ These send the `HttpOnly` refresh cookie automatically, so they need their own d
 
 ---
 
+## 10.2 Open Security Findings (tracked)
+
+From the Phase 2 security review (2026-06-02). None blocking; all scheduled for **Phase 4 — Security Hardening**.
+
+| #    | Severity | Finding                                                                                                                  | Planned fix                                                         |
+| ---- | -------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| SF-1 | Medium   | Login timing oracle — unknown email skips argon2 (fast path) enabling enumeration by timing.                             | Dummy argon2 verify on the miss path to equalize timing.            |
+| SF-2 | Low      | Disabling an account does not proactively revoke its refresh tokens (they linger until TTL; refresh/login already fail). | Revoke all sessions on `setStatus('disabled')`.                     |
+| SF-3 | Low      | Access JWT remains valid ≤15 min after disable/role change (stateless, by design — ADR-0003).                            | Optional JTI denylist (Phase 10) if instant revocation is required. |
+| SF-4 | Low      | Compression enabled on auth responses carrying the access token (BREACH; low risk — no reflected input).                 | Exclude auth responses from compression.                            |
+| SF-5 | Info     | CSRF is pure double-submit, not server-bound to the refresh family (SameSite=Strict is the primary control).             | Bind CSRF to family or accept double-submit and reword §8.1.        |
+
+---
+
 ## 11. Security Review Checklist (gate)
 
 - [ ] No secrets in code/commits (gitleaks clean)

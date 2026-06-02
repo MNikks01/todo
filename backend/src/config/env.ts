@@ -25,6 +25,20 @@ const EnvSchema = z
     JWT_ACCESS_TTL: z.string().default('15m'),
     REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
 
+    // Refresh cookie attributes (docs/security.md §2.3, §8.2). `Secure` is forced
+    // on in production regardless of this flag.
+    COOKIE_DOMAIN: z.string().optional(),
+    COOKIE_SECURE: z
+      .enum(['true', 'false'])
+      .default('false')
+      .transform((value) => value === 'true'),
+
+    // Auth brute-force throttling (docs/security.md §2.5).
+    AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(5),
+    ACCOUNT_LOCK_THRESHOLD: z.coerce.number().int().positive().default(10),
+    ACCOUNT_LOCK_WINDOW_MS: z.coerce.number().int().positive().default(900_000),
+    ACCOUNT_LOCK_DURATION_MS: z.coerce.number().int().positive().default(900_000),
+
     CORS_ORIGINS: z
       .string()
       .default('')
