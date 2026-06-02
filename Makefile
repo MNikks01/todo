@@ -28,8 +28,8 @@ test: ## Run tests across workspaces
 build: ## Build all workspaces
 	npm run build
 
-up: ## Start local stack (Docker Compose) — available from Phase 6
-	docker compose up -d
+up: ## Start local stack (Docker Compose): SPA :8080, API :3000, mongo/redis/mailpit
+	docker compose up -d --build
 
 down: ## Stop local stack
 	docker compose down
