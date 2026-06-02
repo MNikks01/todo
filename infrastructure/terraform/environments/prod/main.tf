@@ -66,3 +66,8 @@ module "observability" {
   region      = var.region
   alert_email = var.alert_email
 }
+
+module "backups" {
+  source      = "../../modules/backups"
+  bucket_name = var.backups_bucket_name
+}

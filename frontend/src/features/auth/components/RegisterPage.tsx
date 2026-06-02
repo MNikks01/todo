@@ -8,7 +8,7 @@ export function RegisterPage() {
   const register = useRegister();
 
   return (
-    <div className="mx-auto mt-16 w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <main className="mx-auto mt-16 w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
       <h1 className="mb-4 text-xl font-semibold">Create account</h1>
       <CredentialsForm
         submitLabel="Register"
@@ -23,10 +23,10 @@ export function RegisterPage() {
       />
       <p className="mt-4 text-sm text-gray-600">
         Already have an account?{' '}
-        <Link className="text-blue-600 hover:underline" to="/login">
+        <Link className="text-blue-600 underline" to="/login">
           Log in
         </Link>
       </p>
-    </div>
+    </main>
   );
 }
