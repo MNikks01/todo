@@ -15,22 +15,23 @@ A multi-user Todo app built as a **learning vehicle for production engineering**
 
 ## Documentation Map
 
-| Doc                                                  | What                                                               |
-| ---------------------------------------------------- | ------------------------------------------------------------------ |
-| [docs/architecture.md](docs/architecture.md)         | The why — requirements, decisions, tradeoffs, strategies, patterns |
-| [docs/roadmap.md](docs/roadmap.md)                   | Phased delivery plan (Phase 0 → 11)                                |
-| [docs/folder-structure.md](docs/folder-structure.md) | Target tree for every part of the repo                             |
-| [docs/security.md](docs/security.md)                 | Threat model + controls (authn/z, API, infra, frontend)            |
-| [docs/database.md](docs/database.md)                 | Collections, indexes, query patterns, scaling                      |
-| [docs/aws.md](docs/aws.md)                           | Cheap & prod AWS topologies, cost, IAM, networking                 |
-| [docs/docker.md](docs/docker.md)                     | Containerization & compose                                         |
-| [docs/cicd.md](docs/cicd.md)                         | GitHub Actions pipeline & rollback                                 |
-| [docs/git-strategy.md](docs/git-strategy.md)         | Branching & release flow                                           |
-| [docs/hotfix-process.md](docs/hotfix-process.md)     | Incident & hotfix runbook                                          |
-| [docs/logging.md](docs/logging.md)                   | Structured logging, correlation IDs, redaction                     |
-| [docs/monitoring.md](docs/monitoring.md)             | Metrics, alarms, dashboards, SLOs                                  |
-| [docs/testing.md](docs/testing.md)                   | Test pyramid, coverage gates                                       |
-| [docs/adr/](docs/adr/)                               | Architecture Decision Records                                      |
+| Doc                                                                        | What                                                               |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| [docs/architecture.md](docs/architecture.md)                               | The why — requirements, decisions, tradeoffs, strategies, patterns |
+| [docs/roadmap.md](docs/roadmap.md)                                         | Phased delivery plan (Phase 0 → 11)                                |
+| [docs/folder-structure.md](docs/folder-structure.md)                       | Target tree for every part of the repo                             |
+| [docs/security.md](docs/security.md)                                       | Threat model + controls (authn/z, API, infra, frontend)            |
+| [docs/database.md](docs/database.md)                                       | Collections, indexes, query patterns, scaling                      |
+| [docs/aws.md](docs/aws.md)                                                 | Cheap & prod AWS topologies, cost, IAM, networking                 |
+| [docs/aws-free-tier-learning-plan.md](docs/aws-free-tier-learning-plan.md) | ₹0 Free-Tier learning plan, cost-risk report, cleanup checklist    |
+| [docs/docker.md](docs/docker.md)                                           | Containerization & compose                                         |
+| [docs/cicd.md](docs/cicd.md)                                               | GitHub Actions pipeline & rollback                                 |
+| [docs/git-strategy.md](docs/git-strategy.md)                               | Branching & release flow                                           |
+| [docs/hotfix-process.md](docs/hotfix-process.md)                           | Incident & hotfix runbook                                          |
+| [docs/logging.md](docs/logging.md)                                         | Structured logging, correlation IDs, redaction                     |
+| [docs/monitoring.md](docs/monitoring.md)                                   | Metrics, alarms, dashboards, SLOs                                  |
+| [docs/testing.md](docs/testing.md)                                         | Test pyramid, coverage gates                                       |
+| [docs/adr/](docs/adr/)                                                     | Architecture Decision Records                                      |
 
 ## Operating System for AI Assistance
 
