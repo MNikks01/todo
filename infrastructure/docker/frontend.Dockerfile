@@ -15,7 +15,7 @@ COPY tsconfig.base.json ./
 COPY frontend ./frontend
 RUN npm run build --workspace frontend
 
-FROM nginx:1.27-alpine AS runtime
+FROM nginx:1.31-alpine AS runtime
 COPY infrastructure/docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/frontend/dist /usr/share/nginx/html
 EXPOSE 80
