@@ -1,0 +1,63 @@
+# CD → Production (docs/cicd.md §5). Manual, gated, and promotes the EXACT image
+# digest already validated in staging (no rebuild). Requires the `production`
+# environment to have required reviewers configured (manual approval).
+name: CD · prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Git SHA of the staging-validated image to promote.
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: cd-prod
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Promote · Deploy (prod)
+    if: vars.AWS_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: production # configure required reviewers in repo settings
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Promote by retagging the existing digest → :prod (no rebuild). Fails if
+      # the source tag doesn't exist, so only staging-built images can ship.
+      - name: Promote images to :prod
+        run: |
+          for repo in todo-backend todo-frontend; do
+            docker buildx imagetools create \
+              --tag "${{ vars.ECR_REGISTRY }}/$repo:prod" \
+              "${{ vars.ECR_REGISTRY }}/$repo:${{ inputs.image_tag }}"
+          done
+
+      - name: Deploy via SSM
+        run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --targets "Key=tag:app,Values=todo,Key=tag:env,Values=prod" \
+            --comment "Promote ${{ inputs.image_tag }} to prod" \
+            --parameters 'commands=["cd /opt/todo && IMAGE_TAG=${{ inputs.image_tag }} docker compose pull && IMAGE_TAG=${{ inputs.image_tag }} docker compose up -d"]' \
+            --region "${{ vars.AWS_REGION }}"
+
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "${{ vars.HEALTH_URL }}") || true
+            [ "$code" = "200" ] && echo "healthy" && exit 0
+            sleep 5
+          done
+          echo "health check failed" && exit 1

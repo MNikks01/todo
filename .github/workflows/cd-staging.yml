@@ -1,0 +1,73 @@
+# CD → Staging (docs/cicd.md §4). Deploys on push to `staging`; full E2E gate
+# before promotion. Gated on AWS_DEPLOY_ENABLED; `staging` environment may
+# require reviewers (configured in repo settings).
+name: CD · staging
+
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: cd-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build · Push · Deploy (staging)
+    if: vars.AWS_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build & push images
+        uses: ./.github/actions/build-push-ecr
+        with:
+          role-arn: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          ecr-registry: ${{ vars.ECR_REGISTRY }}
+          tag: ${{ github.sha }}
+          channel: staging
+          api-base-url: ${{ vars.API_BASE_URL }}
+
+      - name: Deploy via SSM
+        run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --targets "Key=tag:app,Values=todo,Key=tag:env,Values=staging" \
+            --comment "Deploy ${{ github.sha }}" \
+            --parameters 'commands=["cd /opt/todo && IMAGE_TAG=${{ github.sha }} docker compose pull && IMAGE_TAG=${{ github.sha }} docker compose up -d"]' \
+            --region "${{ vars.AWS_REGION }}"
+
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "${{ vars.HEALTH_URL }}") || true
+            [ "$code" = "200" ] && echo "healthy" && exit 0
+            sleep 5
+          done
+          echo "health check failed" && exit 1
+
+  e2e:
+    name: E2E against staging
+    needs: deploy
+    if: vars.AWS_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # Point Playwright at the deployed staging URL instead of the local stack.
+      - name: Run E2E (staging)
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ vars.STAGING_URL }}
+        run: npm run test:e2e

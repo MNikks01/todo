@@ -1,0 +1,56 @@
+# CD → Development (docs/cicd.md §3). Auto-deploys on merge to develop.
+# Gated: the job is skipped until AWS is configured (set repo variable
+# AWS_DEPLOY_ENABLED=true plus the AWS_* / ECR_* vars and the OIDC role).
+name: CD · dev
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # OIDC
+
+concurrency:
+  group: cd-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build · Push · Deploy (dev)
+    if: vars.AWS_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build & push images
+        uses: ./.github/actions/build-push-ecr
+        with:
+          role-arn: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          ecr-registry: ${{ vars.ECR_REGISTRY }}
+          tag: ${{ github.sha }}
+          channel: dev
+          api-base-url: ${{ vars.API_BASE_URL }}
+
+      # Cheap tier (docs/aws.md §2): pull the new image + restart compose on the
+      # instance via SSM. ECS alternative: `aws ecs update-service --force-new-deployment`.
+      - name: Deploy via SSM
+        run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --targets "Key=tag:app,Values=todo,Key=tag:env,Values=dev" \
+            --comment "Deploy ${{ github.sha }}" \
+            --parameters 'commands=["cd /opt/todo && IMAGE_TAG=${{ github.sha }} docker compose pull && IMAGE_TAG=${{ github.sha }} docker compose up -d"]' \
+            --region "${{ vars.AWS_REGION }}"
+
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "${{ vars.HEALTH_URL }}") || true
+            [ "$code" = "200" ] && echo "healthy" && exit 0
+            sleep 5
+          done
+          echo "health check failed" && exit 1
