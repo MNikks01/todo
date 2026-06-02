@@ -99,6 +99,7 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITLEAKS_CONFIG: .gitleaks.toml
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required by the action to scan PRs
 
       # Install the Trivy binary directly (deterministic — avoids action tag drift).
       - name: Install Trivy
@@ -116,7 +117,9 @@ jobs:
             --output trivy.sarif
 
       - name: Upload Trivy SARIF
-        if: always()
+        # Upload findings even when the scan gate fails, but only if the file
+        # was actually produced (e.g. skip when an earlier step aborted the job).
+        if: always() && hashFiles('trivy.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy.sarif
