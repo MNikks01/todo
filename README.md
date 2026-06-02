@@ -47,9 +47,10 @@ This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the ope
 - **Phase 0** — full documentation system + `.claude` operating system.
 - **Phase 1** — monorepo tooling: strict TS, ESLint (with Clean-Architecture + feature-isolation boundary rules), Prettier, Husky/commitlint, Zod config loaders, CI.
 - **Phase 2** — backend auth: register/login, JWT access + rotating refresh (reuse detection + family revoke), per-account lockout, CSRF, RBAC, audit logging, `users` admin module.
-- **Phase 3** — backend `todos` module (owner-scoped CRUD, filter/sort/paginate/search, soft-delete) + React SPA (feature-based: auth + todos, React Query, Zustand, Axios refresh interceptor, Tailwind, protected routes). **92 tests** (73 backend + 19 frontend). See [docs/roadmap.md](docs/roadmap.md).
+- **Phase 3** — backend `todos` module (owner-scoped CRUD, filter/sort/paginate/search, soft-delete) + React SPA (feature-based: auth + todos, React Query, Zustand, Axios refresh interceptor, Tailwind, protected routes).
+- **Phase 4** — security hardening: login timing equalization (SF-1), session revocation on account disable (SF-2), no compression on auth responses (SF-4), NoSQL operator sanitization, locked-down API CSP (SF-6). See [docs/security.md](docs/security.md) §10.2. **100 tests** (81 backend + 19 frontend).
 
-Next: **Phase 4 — Security hardening** (addresses the tracked findings in [docs/security.md](docs/security.md) §10.2).
+Next: **Phase 5 — Testing & Quality Gates** (E2E with Playwright, coverage enforcement in CI).
 
 ## Getting Started
 

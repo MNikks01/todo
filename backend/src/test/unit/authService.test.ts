@@ -17,16 +17,17 @@ function makeService(lockThreshold = 3) {
   const refreshTokens = new FakeRefreshTokenRepository();
   const tokens = createTokenService();
   const audit = new FakeAuditLogger();
+  const hasher = new FakeHasher();
   const loginAttempts = new InMemoryLoginAttemptTracker(lockThreshold, 60_000, 60_000);
   const service = new AuthService({
     users: userService,
     refreshTokens,
-    hasher: new FakeHasher(),
+    hasher,
     tokens,
     audit,
     loginAttempts,
   });
-  return { service, userService, refreshTokens, tokens, audit };
+  return { service, userService, refreshTokens, tokens, audit, hasher };
 }
 
 const creds = { email: 'user@example.com', password: 'password123' };
@@ -75,6 +76,14 @@ describe('AuthService.login', () => {
   it('rejects an unknown email without revealing existence', async () => {
     const { service } = makeService();
     await expect(service.login(creds)).rejects.toThrow('Invalid email or password');
+  });
+
+  it('runs a password verify even when the email is unknown (timing equalization, SF-1)', async () => {
+    const { service, hasher } = makeService();
+    await expect(service.login(creds)).rejects.toThrow();
+    // verify() is invoked against the dummy hash so the unknown-email path costs
+    // the same as a real miss.
+    expect(hasher.verifyCalls).toBe(1);
   });
 
   it('rejects login for a disabled account', async () => {
