@@ -1,11 +1,15 @@
 # AWS Architecture
 
-> **Status:** Cheapest tier authored + validated (Phase 8) · **Owner:** Cloud Architect · Two reference topologies: **Cheapest** and **Production-grade**.
+> **Status:** Both tiers authored + validated (Phases 8 & 10) · **Owner:** Cloud Architect · Two reference topologies: **Cheapest** and **Production-grade**.
 > Provisioned via Terraform (`infrastructure/terraform`). IAM least-privilege; secrets in Secrets Manager.
 
 ## Phase 8 — Terraform (cheapest tier)
 
 Authored and **`terraform validate`-clean** (against the AWS provider schema); not yet applied (apply is a billable decision — see `infrastructure/terraform/README.md`). Modules: `network` (VPC/subnet/SG), `compute` (Graviton EC2 + instance profile + Docker user_data, SSM-only admin), `ecr`, `storage` (S3 private + CloudFront OAC, SPA fallback), `secrets` (Secrets Manager; JWT generated, MONGODB_URI seeded), `github-oidc` (OIDC provider + least-privilege CI deploy role wiring Phase 7's gated workflows). Composed in `environments/dev`. Provision/deploy steps: `infrastructure/aws/runbooks/deploy.md`.
+
+## Phase 10 — Terraform (production-HA tier)
+
+Authored and **`terraform validate`-clean** (not applied). Topology B (ADR-0009): `network-ha` (2-AZ public/private subnets + NAT), `alb` (ALB + ACM DNS-validated TLS + HTTP→HTTPS + Route53 alias), `ecs` (Fargate cluster + service, 2 tasks, CPU target-tracking autoscaling, Secrets Manager injection, rolling deploy with circuit-breaker auto-rollback, Container Insights), `waf` (AWS managed rule groups + per-IP rate limiting on the ALB). Reuses `ecr`/`secrets`/`storage`/`observability`/`github-oidc`. Composed in `environments/prod`. Estimated ~$120–200/mo (§8).
 
 ---
 

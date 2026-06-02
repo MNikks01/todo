@@ -1,0 +1,10 @@
+# Copy to terraform.tfvars and fill in. Never commit real tfvars.
+region            = "us-east-1"
+github_repository = "MNikks01/todo"
+spa_bucket_name   = "todo-prod-spa-CHANGE-ME"
+hosted_zone_name  = "example.com"
+api_domain        = "api.example.com"
+app_origin        = "https://app.example.com"
+alert_email       = "alerts@example.com"
+# The GitHub OIDC provider is typically created once (by the dev env); reuse it:
+create_oidc_provider = false
