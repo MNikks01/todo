@@ -20,6 +20,7 @@ import { MongoAuditLogger } from './modules/auth/infrastructure/mongoAuditLogger
 import { InMemoryLoginAttemptTracker } from './modules/auth/infrastructure/inMemoryLoginAttemptTracker.js';
 import { createAuthModule } from './modules/auth/auth.module.js';
 import { createUsersModule } from './modules/users/users.module.js';
+import { createTodosModule } from './modules/todos/todos.module.js';
 import { createHealthRouter } from './modules/health/healthRouter.js';
 
 export function createApp(): Express {
@@ -40,6 +41,7 @@ export function createApp(): Express {
     loginAttempts,
     authMiddleware,
   });
+  const todosModule = createTodosModule({ authMiddleware });
 
   const app = express();
   app.disable('x-powered-by');
@@ -66,6 +68,7 @@ export function createApp(): Express {
   app.use(createHealthRouter());
   app.use('/api/v1/auth', authModule.router);
   app.use('/api/v1/users', usersModule.router);
+  app.use('/api/v1/todos', todosModule.router);
 
   // --- Error handling (last) ---
   app.use(notFoundHandler);

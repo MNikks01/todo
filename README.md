@@ -42,13 +42,14 @@ This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the ope
 
 ## Status
 
-**Phase 2 — Authentication & RBAC: complete.** Phases done so far:
+**Phase 3 — Todos + frontend vertical slice: complete.** Phases done so far:
 
 - **Phase 0** — full documentation system + `.claude` operating system.
-- **Phase 1** — monorepo tooling: strict TS, ESLint (with Clean-Architecture boundary rules), Prettier, Husky/commitlint, Zod config loaders, CI.
-- **Phase 2** — backend auth: register/login, JWT access + rotating refresh (reuse detection + family revoke), per-account lockout, CSRF, RBAC, audit logging, `users` admin module, 62 tests (auth service 100% lines). See [docs/roadmap.md](docs/roadmap.md).
+- **Phase 1** — monorepo tooling: strict TS, ESLint (with Clean-Architecture + feature-isolation boundary rules), Prettier, Husky/commitlint, Zod config loaders, CI.
+- **Phase 2** — backend auth: register/login, JWT access + rotating refresh (reuse detection + family revoke), per-account lockout, CSRF, RBAC, audit logging, `users` admin module.
+- **Phase 3** — backend `todos` module (owner-scoped CRUD, filter/sort/paginate/search, soft-delete) + React SPA (feature-based: auth + todos, React Query, Zustand, Axios refresh interceptor, Tailwind, protected routes). **92 tests** (73 backend + 19 frontend). See [docs/roadmap.md](docs/roadmap.md).
 
-Next: **Phase 3 — Todos feature + frontend vertical slice.**
+Next: **Phase 4 — Security hardening** (addresses the tracked findings in [docs/security.md](docs/security.md) §10.2).
 
 ## Getting Started
 

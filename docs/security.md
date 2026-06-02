@@ -217,6 +217,7 @@ From the Phase 2 security review (2026-06-02). None blocking; all scheduled for 
 | SF-3 | Low      | Access JWT remains valid ≤15 min after disable/role change (stateless, by design — ADR-0003).                            | Optional JTI denylist (Phase 10) if instant revocation is required. |
 | SF-4 | Low      | Compression enabled on auth responses carrying the access token (BREACH; low risk — no reflected input).                 | Exclude auth responses from compression.                            |
 | SF-5 | Info     | CSRF is pure double-submit, not server-bound to the refresh family (SameSite=Strict is the primary control).             | Bind CSRF to family or accept double-submit and reword §8.1.        |
+| SF-6 | Low      | No Content-Security-Policy on the SPA host yet (Helmet covers the API; the static frontend needs its own CSP headers).   | Add CSP via CloudFront/Nginx response headers (Phase 4/8).          |
 
 ---
 
