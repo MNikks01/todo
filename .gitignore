@@ -32,6 +32,10 @@ Thumbs.db
 .eslintcache
 playwright-report/
 test-results/
+e2e/playwright-report/
+e2e/test-results/
+blob-report/
+.last-run.json
 
 # Terraform
 **/.terraform/

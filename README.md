@@ -2,7 +2,7 @@
 
 A multi-user Todo app built as a **learning vehicle for production engineering**: React architecture, Node.js Clean Architecture, security, AWS, Docker, CI/CD, observability, and design patterns. The domain is simple on purpose — the rigor lives in the engineering.
 
-> **Documentation-First.** No implementation code exists until the documentation phases are complete and reviewed. Start with the docs below.
+> **Documentation-First.** Every phase updates the docs in the same change; significant decisions are recorded as ADRs. Start with the docs below.
 
 ---
 
@@ -42,15 +42,25 @@ This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the ope
 
 ## Status
 
-**Phase 3 — Todos + frontend vertical slice: complete.** Phases done so far:
+**Phase 5 — Testing & Quality Gates: complete.** Phases done so far:
 
 - **Phase 0** — full documentation system + `.claude` operating system.
 - **Phase 1** — monorepo tooling: strict TS, ESLint (with Clean-Architecture + feature-isolation boundary rules), Prettier, Husky/commitlint, Zod config loaders, CI.
 - **Phase 2** — backend auth: register/login, JWT access + rotating refresh (reuse detection + family revoke), per-account lockout, CSRF, RBAC, audit logging, `users` admin module.
 - **Phase 3** — backend `todos` module (owner-scoped CRUD, filter/sort/paginate/search, soft-delete) + React SPA (feature-based: auth + todos, React Query, Zustand, Axios refresh interceptor, Tailwind, protected routes).
-- **Phase 4** — security hardening: login timing equalization (SF-1), session revocation on account disable (SF-2), no compression on auth responses (SF-4), NoSQL operator sanitization, locked-down API CSP (SF-6). See [docs/security.md](docs/security.md) §10.2. **100 tests** (81 backend + 19 frontend).
+- **Phase 4** — security hardening: login timing equalization (SF-1), session revocation on account disable (SF-2), no compression on auth responses (SF-4), NoSQL operator sanitization, locked-down API CSP (SF-6). See [docs/security.md](docs/security.md) §10.2.
+- **Phase 5** — testing & quality gates: **Playwright E2E** (9 specs) driving the real stack via an ephemeral-Mongo backend + built SPA; coverage thresholds enforced per workspace and **wired into CI** (lint → typecheck → format → coverage → E2E). **109 tests** (81 backend + 19 frontend + 9 E2E).
 
-Next: **Phase 5 — Testing & Quality Gates** (E2E with Playwright, coverage enforcement in CI).
+Next: **Phase 6 — Dockerization & local parity.**
+
+### Running locally
+
+```bash
+npm ci
+npm run test          # unit + integration (both workspaces)
+npm run test:coverage # with coverage gates
+npm run test:e2e      # Playwright (boots backend + SPA automatically)
+```
 
 ## Getting Started
 
