@@ -187,6 +187,23 @@ When we deploy, I will proceed only with your explicit OK at each gate:
 
 ---
 
+## 7b. Chosen path: LocalStack (guaranteed ₹0)
+
+For **zero possibility of a charge**, the hands-on practice runs against
+**LocalStack** (a local AWS emulator) — no real AWS account, so billing is
+impossible. See `infrastructure/terraform/environments/localstack/README.md`.
+
+```bash
+make localstack-up && make localstack-apply   # create
+make localstack-destroy && make localstack-down  # remove
+```
+
+Verified end-to-end: `terraform apply`/`destroy` cleanly manage 15 resources
+(VPC, subnet, IGW, route table, SG, EC2-mock, S3, IAM role/policy/profile, SSM
+SecureString, CloudWatch log group). **ECR/CloudFront/ALB/ECS are LocalStack Pro**
+— learn those via `terraform validate` on the real modules, or the real AWS Free
+Tier later (with the §1–§6 guardrails).
+
 ## 8. Bottom line
 
 - **Expected cost: ₹0** for 12 months if you follow §1 guardrails, use the §2
