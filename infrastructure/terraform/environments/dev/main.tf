@@ -38,3 +38,11 @@ module "github_oidc" {
   ecr_repository_arns  = module.ecr.repository_arns
   spa_bucket_arn       = module.storage.bucket_arn
 }
+
+module "observability" {
+  source      = "../../modules/observability"
+  name        = var.name
+  environment = var.environment
+  region      = var.region
+  alert_email = var.alert_email
+}
