@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars and fill in. Never commit real tfvars (gitignored).
+region            = "us-east-1"
+github_repository = "MNikks01/todo"
+# S3 bucket names are globally unique — pick your own:
+spa_bucket_name = "todo-dev-spa-CHANGE-ME"
+# Set false if the GitHub OIDC provider already exists in the account:
+create_oidc_provider = true

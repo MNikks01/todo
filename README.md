@@ -42,7 +42,7 @@ This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the ope
 
 ## Status
 
-**Phase 7 — CI/CD Pipeline: complete.** Phases done so far:
+**Phase 8 — AWS deployment (Terraform authored + validated): complete.** Phases done so far:
 
 - **Phase 0** — full documentation system + `.claude` operating system.
 - **Phase 1** — monorepo tooling: strict TS, ESLint (with Clean-Architecture + feature-isolation boundary rules), Prettier, Husky/commitlint, Zod config loaders, CI.
@@ -52,8 +52,9 @@ This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the ope
 - **Phase 5** — testing & quality gates: **Playwright E2E** (9 specs) driving the real stack via an ephemeral-Mongo backend + built SPA; coverage thresholds enforced per workspace and **wired into CI** (lint → typecheck → format → coverage → E2E). **109 tests** (81 backend + 19 frontend + 9 E2E).
 - **Phase 6** — dockerization: multi-stage images (backend on bookworm-slim, frontend → nginx with SPA CSP/security headers), `docker-compose.yml` (mongo + redis + mailpit + api + frontend) with healthchecks. **Verified end-to-end** — `make up` serves the SPA on :8080 and API on :3000.
 - **Phase 7** — CI/CD: GitHub Actions for quality gates, Playwright E2E, **security scans** (npm audit, gitleaks, Trivy, CodeQL), Docker image-build validation, and **gated deploy/rollback** workflows (OIDC→ECR, per-env, prod = digest promotion). Dependabot enabled. AWS-dependent steps are wired-but-gated until configured (see [docs/cicd.md](docs/cicd.md)).
+- **Phase 8** — AWS infra as **Terraform** (cheapest tier): modules for VPC/SG, Graviton EC2 (Docker, SSM-only), ECR, S3+CloudFront SPA hosting, Secrets Manager, and the GitHub-OIDC deploy role. `terraform validate`-clean against the AWS provider; **not applied** (applying is billable — `infrastructure/terraform/README.md` + `infrastructure/aws/runbooks/deploy.md`).
 
-Next: **Phase 8 — AWS deployment** (Terraform: EC2/ECR/S3/CloudFront/Route53/ACM/Secrets Manager).
+Next: **Phase 9 — Observability** (CloudWatch logs/metrics/alarms/dashboards) — or apply the Phase 8 infra to a real AWS account.
 
 ### Running locally
 

@@ -1,7 +1,11 @@
 # AWS Architecture
 
-> **Status:** Draft v1.0 · **Owner:** Cloud Architect · Two reference topologies: **Cheapest** and **Production-grade**.
+> **Status:** Cheapest tier authored + validated (Phase 8) · **Owner:** Cloud Architect · Two reference topologies: **Cheapest** and **Production-grade**.
 > Provisioned via Terraform (`infrastructure/terraform`). IAM least-privilege; secrets in Secrets Manager.
+
+## Phase 8 — Terraform (cheapest tier)
+
+Authored and **`terraform validate`-clean** (against the AWS provider schema); not yet applied (apply is a billable decision — see `infrastructure/terraform/README.md`). Modules: `network` (VPC/subnet/SG), `compute` (Graviton EC2 + instance profile + Docker user_data, SSM-only admin), `ecr`, `storage` (S3 private + CloudFront OAC, SPA fallback), `secrets` (Secrets Manager; JWT generated, MONGODB_URI seeded), `github-oidc` (OIDC provider + least-privilege CI deploy role wiring Phase 7's gated workflows). Composed in `environments/dev`. Provision/deploy steps: `infrastructure/aws/runbooks/deploy.md`.
 
 ---
 
