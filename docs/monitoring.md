@@ -1,7 +1,14 @@
 # Monitoring & Observability Strategy
 
-> **Status:** Draft v1.0 · **Owner:** DevOps/SRE · Built on CloudWatch.
+> **Status:** Implemented (Phase 9) · **Owner:** DevOps/SRE · Built on CloudWatch.
 > Observability = logs (see `logging.md`) + metrics + traces + health. This doc covers metrics, alarms, dashboards, health checks, and SLOs.
+
+## Implemented (Phase 9)
+
+- **Backend EMF metrics** (`backend/src/core/metrics`): RED metrics (`RequestCount`/`Errors`/`Latency`) emitted per request as Embedded Metric Format log lines (extracted into the `Todo/API` namespace via stdout→CloudWatch — no metrics API). Security counters `AuthFailure` + `RefreshReuseDetected` emitted from the auth service. Dimensions kept low-cardinality (`service`,`env`); route/status ride along as properties. Unit-tested.
+- **Terraform `observability` module** (validate-clean, not applied): log group (retention), SNS alerts topic + email subscription, alarms (5xx rate, p95 latency, auth-failure spike via a log metric filter), and a CloudWatch dashboard. Wired into `environments/dev`.
+- **`monitoring/`**: dashboard JSON (`dashboards/todo-api.json`) and SLO/error-budget definitions (`slo/slo.md`).
+- **Health/readiness** (`/health`, `/ready`) and **correlation IDs** shipped in Phases 2/9.
 
 ---
 

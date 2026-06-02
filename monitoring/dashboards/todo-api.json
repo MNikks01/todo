@@ -1,0 +1,53 @@
+{
+  "_comment": "Reference CloudWatch dashboard body (docs/monitoring.md §3). The authoritative copy is rendered by Terraform (modules/observability); this is the human-readable source. Replace ENV with the environment.",
+  "widgets": [
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Request rate & errors",
+        "stat": "Sum",
+        "period": 300,
+        "metrics": [
+          ["Todo/API", "RequestCount", "service", "todo-api", "env", "ENV"],
+          ["Todo/API", "Errors", "service", "todo-api", "env", "ENV"]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Latency p50/p95/p99",
+        "period": 300,
+        "metrics": [
+          ["Todo/API", "Latency", "service", "todo-api", "env", "ENV", { "stat": "p50" }],
+          ["Todo/API", "Latency", "service", "todo-api", "env", "ENV", { "stat": "p95" }],
+          ["Todo/API", "Latency", "service", "todo-api", "env", "ENV", { "stat": "p99" }]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 6,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Security: auth failures & refresh reuse",
+        "stat": "Sum",
+        "period": 300,
+        "metrics": [
+          ["Todo/API", "AuthFailure", "service", "todo-api", "env", "ENV"],
+          ["Todo/API", "RefreshReuseDetected", "service", "todo-api", "env", "ENV"]
+        ]
+      }
+    }
+  ]
+}

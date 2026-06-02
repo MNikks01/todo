@@ -20,3 +20,12 @@ output "github_actions_role_arn" {
 output "app_secret_arn" {
   value = module.secrets.secret_arn
 }
+
+output "alerts_topic_arn" {
+  value       = module.observability.alerts_topic_arn
+  description = "SNS topic for CloudWatch alarms."
+}
+
+output "log_group_name" {
+  value = module.observability.log_group_name
+}

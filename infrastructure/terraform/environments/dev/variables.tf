@@ -30,3 +30,9 @@ variable "create_oidc_provider" {
   default     = true
   description = "Create the GitHub OIDC provider (false if it already exists)."
 }
+
+variable "alert_email" {
+  type        = string
+  default     = ""
+  description = "Email for CloudWatch alarm notifications (empty = no subscription)."
+}

@@ -10,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { config } from '../../../config/env.js';
 import { UnauthorizedError } from '../../../core/errors/index.js';
 import { logger } from '../../../core/logger/logger.js';
+import { incrementMetric } from '../../../core/metrics/metrics.js';
 import type { Role } from '../../../core/types/roles.js';
 import type { UserService } from '../../users/application/userService.js';
 import { type User, toUserDto, type UserDto } from '../../users/domain/user.js';
@@ -72,6 +73,7 @@ export class AuthService {
         action: locked ? 'auth.account_locked' : 'auth.login.failure',
         ...(user ? { targetId: user.id } : {}),
       });
+      incrementMetric('AuthFailure', { locked }); // CloudWatch signal (docs/monitoring.md §4)
       throw new UnauthorizedError(GENERIC_CREDENTIALS_ERROR);
     }
 
@@ -102,6 +104,7 @@ export class AuthService {
         metadata: { family: record.family },
       });
       logger.warn('auth.refresh.reuse_detected', { userId: record.userId });
+      incrementMetric('RefreshReuseDetected');
       throw new UnauthorizedError('Invalid session');
     }
 
