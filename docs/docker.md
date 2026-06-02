@@ -1,7 +1,14 @@
 # Containerization Strategy
 
-> **Status:** Draft v1.0 · **Owner:** DevOps · Multi-stage builds, dev/prod parity, minimal images.
+> **Status:** Implemented (Phase 6) · **Owner:** DevOps · Multi-stage builds, dev/prod parity, minimal images.
 > Same image promoted across environments; config injected at runtime (12-factor).
+
+## Implemented (Phase 6)
+
+- **`infrastructure/docker/backend.Dockerfile`** — multi-stage (build → prod-deps → runtime) on `node:22-bookworm-slim` (glibc, so argon2 prebuilds load without a compile). Non-root `node` user, `HEALTHCHECK` against `/health` via Node's global `fetch`. Build context = repo root.
+- **`infrastructure/docker/frontend.Dockerfile`** — Vite build → `nginx:1.27-alpine`. `VITE_API_BASE_URL` baked via build-arg. nginx config (`nginx/default.conf`) does SPA fallback, gzip, asset caching, and sets the **SPA CSP + security headers** (closes SF-6 at the edge; headers repeated per `location` because nginx `add_header` doesn't inherit into a location that defines its own).
+- **`docker-compose.yml`** — `mongo` (healthchecked), `redis`, `mailpit`, `api`, `frontend`. `api` waits for `mongo` healthy. SPA on `:8080`, API on `:3000` (same-site localhost → cookies + CSP `connect-src` line up). Local runs `NODE_ENV=development` so cookies aren't `Secure` over plain HTTP.
+- **Verified:** `docker compose up` → `/ready` reports `db:true`; full register → login → create todo → list round-trips; SPA serves with CSP headers and client-route fallback. One command: `make up`.
 
 ---
 

@@ -42,7 +42,7 @@ This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the ope
 
 ## Status
 
-**Phase 5 — Testing & Quality Gates: complete.** Phases done so far:
+**Phase 6 — Dockerization & Local Parity: complete.** Phases done so far:
 
 - **Phase 0** — full documentation system + `.claude` operating system.
 - **Phase 1** — monorepo tooling: strict TS, ESLint (with Clean-Architecture + feature-isolation boundary rules), Prettier, Husky/commitlint, Zod config loaders, CI.
@@ -50,8 +50,9 @@ This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the ope
 - **Phase 3** — backend `todos` module (owner-scoped CRUD, filter/sort/paginate/search, soft-delete) + React SPA (feature-based: auth + todos, React Query, Zustand, Axios refresh interceptor, Tailwind, protected routes).
 - **Phase 4** — security hardening: login timing equalization (SF-1), session revocation on account disable (SF-2), no compression on auth responses (SF-4), NoSQL operator sanitization, locked-down API CSP (SF-6). See [docs/security.md](docs/security.md) §10.2.
 - **Phase 5** — testing & quality gates: **Playwright E2E** (9 specs) driving the real stack via an ephemeral-Mongo backend + built SPA; coverage thresholds enforced per workspace and **wired into CI** (lint → typecheck → format → coverage → E2E). **109 tests** (81 backend + 19 frontend + 9 E2E).
+- **Phase 6** — dockerization: multi-stage images (backend on bookworm-slim, frontend → nginx with SPA CSP/security headers), `docker-compose.yml` (mongo + redis + mailpit + api + frontend) with healthchecks. **Verified end-to-end** — `make up` serves the SPA on :8080 and API on :3000.
 
-Next: **Phase 6 — Dockerization & local parity.**
+Next: **Phase 7 — CI/CD pipeline** (ECR build/push, deploy, rollback).
 
 ### Running locally
 
