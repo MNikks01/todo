@@ -151,7 +151,7 @@ These send the `HttpOnly` refresh cookie automatically, so they need their own d
    - On login (and on each refresh) the server sets a **second, non-`HttpOnly`** cookie `csrfToken=<random>` (`Secure; SameSite=Strict`, readable by JS).
    - The SPA reads `csrfToken` and echoes it in an **`X-CSRF-Token` header** on every call to `/auth/refresh` and `/auth/logout`.
    - The server validates `header === cookie` (constant-time compare). A cross-site attacker cannot read the cookie value (SOP) to forge the header, so the request fails even if SameSite were somehow bypassed.
-   - The CSRF token is **bound to the session/refresh family** and rotated alongside the refresh token.
+   - The CSRF token is freshly minted (and re-set as a cookie) on each login and refresh. It is a stateless double-submit token — not server-bound to the refresh family — which together with `SameSite=Strict` is sufficient (SF-5).
 3. **Origin/Referer check (cheap backstop):** auth endpoints additionally verify the `Origin` header is in the CORS allowlist.
 
 **Logout-all** is a Bearer-authorized API call (category A), so it follows the CSRF-immune path; plain cookie `logout` (clearing the session) is category B.
@@ -163,6 +163,21 @@ These send the `HttpOnly` refresh cookie automatically, so they need their own d
 - The cookie is issued by the API for its own host with `Secure`, `HttpOnly`, `SameSite=Strict`, `Path=/api/v1/auth`. (We do **not** set a broad `Domain=` attribute — the cookie stays host-only to the API.)
 - **Rejected alternative:** hosting SPA and API on **different registrable domains** would make requests cross-site, forcing `SameSite=None; Secure` (cookie sent cross-site) and leaning entirely on the double-submit token for CSRF — weaker and avoidable. If that topology is ever required, it needs its own ADR.
 - Cross-**origin** (same-site) calls still require the **CORS allowlist** to explicitly permit `https://app.<domain>` with `credentials: true`.
+
+### 8.3 Content-Security-Policy (SF-6)
+
+- **API:** Helmet sets a locked-down CSP (`default-src 'none'; frame-ancestors 'none'`) — the API returns only JSON, nothing renderable.
+- **SPA:** delivered as a response header at the static edge (CloudFront/Nginx, Phase 6/8) rather than a `<meta>` tag (a meta CSP would break Vite's dev server). Target policy:
+  ```
+  default-src 'self';
+  connect-src 'self' https://api.<domain>;
+  img-src 'self' data:;
+  style-src 'self';
+  script-src 'self';
+  frame-ancestors 'none';
+  base-uri 'self';
+  ```
+  Tailwind compiles to a static stylesheet (no inline styles needed), so `'unsafe-inline'` is avoided.
 
 ---
 
@@ -206,18 +221,18 @@ These send the `HttpOnly` refresh cookie automatically, so they need their own d
 
 ---
 
-## 10.2 Open Security Findings (tracked)
+## 10.2 Security Findings (tracked)
 
-From the Phase 2 security review (2026-06-02). None blocking; all scheduled for **Phase 4 — Security Hardening**.
+From the Phase 2–3 security reviews. Resolutions delivered in **Phase 4 — Security Hardening** (2026-06-02).
 
-| #    | Severity | Finding                                                                                                                  | Planned fix                                                         |
-| ---- | -------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
-| SF-1 | Medium   | Login timing oracle — unknown email skips argon2 (fast path) enabling enumeration by timing.                             | Dummy argon2 verify on the miss path to equalize timing.            |
-| SF-2 | Low      | Disabling an account does not proactively revoke its refresh tokens (they linger until TTL; refresh/login already fail). | Revoke all sessions on `setStatus('disabled')`.                     |
-| SF-3 | Low      | Access JWT remains valid ≤15 min after disable/role change (stateless, by design — ADR-0003).                            | Optional JTI denylist (Phase 10) if instant revocation is required. |
-| SF-4 | Low      | Compression enabled on auth responses carrying the access token (BREACH; low risk — no reflected input).                 | Exclude auth responses from compression.                            |
-| SF-5 | Info     | CSRF is pure double-submit, not server-bound to the refresh family (SameSite=Strict is the primary control).             | Bind CSRF to family or accept double-submit and reword §8.1.        |
-| SF-6 | Low      | No Content-Security-Policy on the SPA host yet (Helmet covers the API; the static frontend needs its own CSP headers).   | Add CSP via CloudFront/Nginx response headers (Phase 4/8).          |
+| #    | Severity | Finding                                                                                                                  | Status                                                                                                    |
+| ---- | -------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| SF-1 | Medium   | Login timing oracle — unknown email skips argon2 (fast path) enabling enumeration by timing.                             | ✅ **Resolved** — `login` always verifies against the user's hash or `PasswordHasher.dummyHash()`.        |
+| SF-2 | Low      | Disabling an account does not proactively revoke its refresh tokens (they linger until TTL; refresh/login already fail). | ✅ **Resolved** — `setStatus('disabled')` calls a `SessionRevoker` → `deleteAllForUser`.                  |
+| SF-3 | Low      | Access JWT remains valid ≤15 min after disable/role change (stateless, by design — ADR-0003).                            | ⏳ Accepted/deferred — optional JTI denylist (Phase 10) if instant revocation is ever required.           |
+| SF-4 | Low      | Compression enabled on auth responses carrying the access token (BREACH; low risk — no reflected input).                 | ✅ **Resolved** — `compression` filter skips `/api/v1/auth/*`.                                            |
+| SF-5 | Info     | CSRF is pure double-submit, not server-bound to the refresh family (SameSite=Strict is the primary control).             | ⏳ Accepted — double-submit + SameSite=Strict is sufficient; §8.1 reflects the implemented design.        |
+| SF-6 | Low      | No Content-Security-Policy on the SPA host (Helmet covers the API; the static frontend needs its own CSP headers).       | 🟡 Partial — API CSP locked to `default-src 'none'`; **SPA CSP** applied at the edge in Phase 6/8 (§8.3). |
 
 ---
 

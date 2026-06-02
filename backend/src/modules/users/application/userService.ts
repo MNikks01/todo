@@ -7,9 +7,13 @@ import { ConflictError, NotFoundError } from '../../../core/errors/index.js';
 import type { Role } from '../../../core/types/roles.js';
 import type { AccountStatus, User } from '../domain/user.js';
 import type { UserRepository } from '../domain/userRepository.js';
+import type { SessionRevoker } from '../domain/sessionRevoker.js';
 
 export class UserService {
-  constructor(private readonly users: UserRepository) {}
+  constructor(
+    private readonly users: UserRepository,
+    private readonly sessionRevoker?: SessionRevoker,
+  ) {}
 
   /** Used by auth registration. Enforces unique email (case-insensitive). */
   async createUser(input: { email: string; passwordHash: string; role?: Role }): Promise<User> {
@@ -50,6 +54,11 @@ export class UserService {
     const user = await this.users.setStatus(id, status);
     if (!user) {
       throw new NotFoundError('User not found');
+    }
+    // Disabling an account immediately revokes its sessions so existing refresh
+    // tokens can't linger until TTL (SF-2).
+    if (status === 'disabled') {
+      await this.sessionRevoker?.revokeAllForUser(id);
     }
     return user;
   }

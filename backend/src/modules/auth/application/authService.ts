@@ -60,10 +60,11 @@ export class AuthService {
     }
 
     const user = await this.deps.users.findByEmail(key);
-    const passwordOk =
-      user !== null &&
-      user.status === 'active' &&
-      (await this.deps.hasher.verify(user.passwordHash, input.password));
+    // Always run a verify — against the user's hash, or a dummy when the email is
+    // unknown — so timing does not reveal whether the account exists (SF-1).
+    const hashToCheck = user?.passwordHash ?? this.deps.hasher.dummyHash();
+    const passwordMatches = await this.deps.hasher.verify(hashToCheck, input.password);
+    const passwordOk = user !== null && user.status === 'active' && passwordMatches;
 
     if (!user || !passwordOk) {
       const locked = await this.deps.loginAttempts.recordFailure(key);

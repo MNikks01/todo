@@ -106,12 +106,19 @@ export class FakeRefreshTokenRepository implements RefreshTokenRepository {
 }
 
 export class FakeHasher implements PasswordHasher {
+  verifyCalls = 0;
+
   hash(plain: string): Promise<string> {
     return Promise.resolve(`hashed:${plain}`);
   }
 
   verify(hash: string, plain: string): Promise<boolean> {
+    this.verifyCalls += 1;
     return Promise.resolve(hash === `hashed:${plain}`);
+  }
+
+  dummyHash(): string {
+    return 'hashed:__dummy__';
   }
 }
 

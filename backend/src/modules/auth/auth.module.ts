@@ -9,12 +9,13 @@ import type { UserService } from '../users/application/userService.js';
 import { AuthService } from './application/authService.js';
 import type { AuditLogger } from './domain/auditLogger.js';
 import type { LoginAttemptTracker } from './domain/loginAttemptTracker.js';
-import { MongoRefreshTokenRepository } from './infrastructure/mongoRefreshTokenRepository.js';
+import type { RefreshTokenRepository } from './domain/refreshToken.js';
 import { AuthController } from './interface/authController.js';
 import { createAuthRouter } from './interface/authRouter.js';
 
 export interface AuthModuleDeps {
   userService: UserService;
+  refreshTokens: RefreshTokenRepository;
   tokens: TokenService;
   hasher: PasswordHasher;
   audit: AuditLogger;
@@ -30,7 +31,7 @@ export interface AuthModule {
 export function createAuthModule(deps: AuthModuleDeps): AuthModule {
   const service = new AuthService({
     users: deps.userService,
-    refreshTokens: new MongoRefreshTokenRepository(),
+    refreshTokens: deps.refreshTokens,
     hasher: deps.hasher,
     tokens: deps.tokens,
     audit: deps.audit,
