@@ -1,0 +1,28 @@
+{
+  "name": "@todo/backend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Todo API — Express + Clean Architecture (see backend/CLAUDE.md)",
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "vite": "8.0.16",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.8"
+  }
+}

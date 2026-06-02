@@ -1,0 +1,104 @@
+# OpenAPI specification — Todo API
+# Status: SKELETON (Phase 0). Schemas/paths are filled in as endpoints are implemented (Phase 2+).
+# This stub exists so cross-links from docs/CLAUDE.md and the documentation rule resolve, and to
+# establish the contract conventions before any code is written.
+
+openapi: 3.1.0
+info:
+  title: Todo API
+  version: 0.0.0
+  description: >
+    Multi-user todo management API. Auth via short-lived access JWT (Bearer) + rotating
+    refresh token (HttpOnly cookie). See docs/security.md and docs/architecture.md.
+  contact:
+    name: Owner
+servers:
+  - url: https://api.{domain}/api/v1
+    description: Production
+    variables:
+      domain: { default: example.com }
+  - url: http://localhost:3000/api/v1
+    description: Local
+
+tags:
+  - name: auth
+    description: Registration, login, refresh rotation, logout
+  - name: todos
+    description: Per-user todo CRUD, filtering, search
+  - name: users
+    description: Admin user management (RBAC)
+
+# ---- Conventions (binding, even while paths are TBD) ----
+# - All mutating requests validated with Zod at the boundary; invalid -> 400 Problem.
+# - Protected routes require Authorization: Bearer <accessToken>.
+# - Cookie endpoints (/auth/refresh, /auth/logout) require X-CSRF-Token (double-submit).
+# - Errors use a consistent Problem shape (below); no internal details leaked.
+# - List endpoints: cursor/offset pagination with capped page size; correlationId echoed in headers.
+
+paths:
+  /health:
+    get:
+      summary: Liveness probe
+      tags: [auth]
+      security: []
+      responses:
+        '200': { description: OK }
+  /ready:
+    get:
+      summary: Readiness probe (DB/cache ping)
+      tags: [auth]
+      security: []
+      responses:
+        '200': { description: Ready }
+        '503': { description: Not ready }
+  # /auth/register, /auth/login, /auth/refresh, /auth/logout, /auth/logout-all  — TBD Phase 2
+  # /todos (GET list, POST create), /todos/{id} (GET, PATCH, DELETE), /todos/{id}/restore — TBD Phase 3
+  # /users (GET admin list), /users/{id} (PATCH role/status) — TBD Phase 2/3
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    csrfToken:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+  schemas:
+    Problem:
+      type: object
+      description: Safe error envelope (no internal details).
+      required: [error, message, correlationId]
+      properties:
+        error: { type: string, example: ValidationError }
+        message: { type: string, example: 'title is required' }
+        correlationId: { type: string, example: '01J...ULID' }
+        details:
+          type: array
+          items: { type: object }
+    # Todo, User, AuthTokens, Pagination — TBD as implemented
+  responses:
+    BadRequest:
+      description: Validation failed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unauthorized:
+      description: Missing/invalid credentials
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Forbidden:
+      description: Authenticated but not allowed (RBAC/ownership)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      description: Resource not found (also returned for cross-user access)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+security:
+  - bearerAuth: []

@@ -1,0 +1,10 @@
+# Default owner for everything (docs/git-strategy.md §4).
+* @owner
+
+# Area owners (adjust handles as the team grows)
+/backend/        @owner
+/frontend/       @owner
+/infrastructure/ @owner
+/docs/           @owner
+/.github/        @owner
+/.claude/        @owner
