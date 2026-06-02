@@ -35,11 +35,12 @@ Bias toward many fast unit tests, fewer integration, fewest E2E.
 
 **Principles:** test behavior not implementation; query by role/label (a11y); MSW for network so no real backend needed.
 
-## 4. End-to-End
+## 4. End-to-End — implemented (Phase 5)
 
-- **Playwright** against the Dockerized full stack (real API + test DB).
-- Core journeys: register → login → create todo → edit → complete → delete → logout; refresh-token expiry/refresh; unauthorized access redirect.
-- Deterministic: seeded DB per run, isolated test users, retries on known flakiness, trace-on-failure artifacts.
+- **Playwright** (`e2e/`) drives Chromium against the real stack. `playwright.config.ts` `webServer` boots: the backend on `:3000` via `backend/scripts/e2e-server.ts` (an **ephemeral in-memory Mongo** — no external services), and the **built SPA** (`vite preview`) on `:4173`. Run from the repo root: `npm run test:e2e`.
+- Core journeys covered: unauthenticated → login redirect; register → home; bad login error; **session persistence across reload** (silent refresh); create → complete (optimistic) → delete; todo persistence across reload; status filter; logout → route protection.
+- Deterministic: unique users per test, single worker, relaxed rate limits in the E2E server (rate limiting itself is covered by backend integration tests), retries + trace/screenshot on failure in CI.
+- **Controlled inputs:** the completion checkbox is React-controlled by an async mutation, so specs `click()` + assert `toBeChecked()` (not `.check()`, which expects a synchronous state flip).
 
 ## 5. Coverage
 

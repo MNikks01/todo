@@ -140,9 +140,9 @@ export default tseslint.config(
     },
   },
 
-  // Node globals for backend + tooling.
+  // Node globals for backend + tooling + e2e.
   {
-    files: ['backend/**/*.ts', '*.{js,ts}', 'scripts/**/*.{js,ts}'],
+    files: ['backend/**/*.ts', '*.{js,ts}', 'scripts/**/*.{js,ts}', 'e2e/**/*.ts'],
     languageOptions: { globals: { ...globals.node } },
   },
 
