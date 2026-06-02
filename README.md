@@ -42,7 +42,7 @@ This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the ope
 
 ## Status
 
-**Phase 6 — Dockerization & Local Parity: complete.** Phases done so far:
+**Phase 7 — CI/CD Pipeline: complete.** Phases done so far:
 
 - **Phase 0** — full documentation system + `.claude` operating system.
 - **Phase 1** — monorepo tooling: strict TS, ESLint (with Clean-Architecture + feature-isolation boundary rules), Prettier, Husky/commitlint, Zod config loaders, CI.
@@ -51,8 +51,9 @@ This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the ope
 - **Phase 4** — security hardening: login timing equalization (SF-1), session revocation on account disable (SF-2), no compression on auth responses (SF-4), NoSQL operator sanitization, locked-down API CSP (SF-6). See [docs/security.md](docs/security.md) §10.2.
 - **Phase 5** — testing & quality gates: **Playwright E2E** (9 specs) driving the real stack via an ephemeral-Mongo backend + built SPA; coverage thresholds enforced per workspace and **wired into CI** (lint → typecheck → format → coverage → E2E). **109 tests** (81 backend + 19 frontend + 9 E2E).
 - **Phase 6** — dockerization: multi-stage images (backend on bookworm-slim, frontend → nginx with SPA CSP/security headers), `docker-compose.yml` (mongo + redis + mailpit + api + frontend) with healthchecks. **Verified end-to-end** — `make up` serves the SPA on :8080 and API on :3000.
+- **Phase 7** — CI/CD: GitHub Actions for quality gates, Playwright E2E, **security scans** (npm audit, gitleaks, Trivy, CodeQL), Docker image-build validation, and **gated deploy/rollback** workflows (OIDC→ECR, per-env, prod = digest promotion). Dependabot enabled. AWS-dependent steps are wired-but-gated until configured (see [docs/cicd.md](docs/cicd.md)).
 
-Next: **Phase 7 — CI/CD pipeline** (ECR build/push, deploy, rollback).
+Next: **Phase 8 — AWS deployment** (Terraform: EC2/ECR/S3/CloudFront/Route53/ACM/Secrets Manager).
 
 ### Running locally
 

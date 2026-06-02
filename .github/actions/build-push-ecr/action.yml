@@ -1,0 +1,65 @@
+# Composite action: assume the deploy role via OIDC, then build + push both
+# images to ECR tagged with the immutable git SHA and a moving env channel
+# (docs/cicd.md §3, docs/aws.md §6). No long-lived AWS keys.
+name: Build and push to ECR
+description: Build backend + frontend images and push to ECR via OIDC.
+
+inputs:
+  role-arn:
+    description: IAM role to assume (OIDC).
+    required: true
+  aws-region:
+    description: AWS region.
+    required: true
+  ecr-registry:
+    description: ECR registry host, e.g. 123456789012.dkr.ecr.us-east-1.amazonaws.com
+    required: true
+  tag:
+    description: Immutable image tag (usually the git SHA).
+    required: true
+  channel:
+    description: Moving channel tag for the environment (dev|staging|prod).
+    required: true
+  api-base-url:
+    description: VITE_API_BASE_URL baked into the frontend build.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Configure AWS credentials (OIDC)
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ inputs.role-arn }}
+        aws-region: ${{ inputs.aws-region }}
+
+    - name: Login to ECR
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - uses: docker/setup-buildx-action@v3
+
+    - name: Build & push backend
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: infrastructure/docker/backend.Dockerfile
+        push: true
+        tags: |
+          ${{ inputs.ecr-registry }}/todo-backend:${{ inputs.tag }}
+          ${{ inputs.ecr-registry }}/todo-backend:${{ inputs.channel }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build & push frontend
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: infrastructure/docker/frontend.Dockerfile
+        push: true
+        build-args: |
+          VITE_API_BASE_URL=${{ inputs.api-base-url }}
+        tags: |
+          ${{ inputs.ecr-registry }}/todo-frontend:${{ inputs.tag }}
+          ${{ inputs.ecr-registry }}/todo-frontend:${{ inputs.channel }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max

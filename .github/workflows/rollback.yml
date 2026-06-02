@@ -1,0 +1,52 @@
+# Rollback (docs/cicd.md §6). Manual: redeploy a previous immutable image tag.
+# DB migrations are backward-compatible (expand/contract), so app rollback is
+# safe without a DB rollback. Gated on AWS_DEPLOY_ENABLED.
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment.
+        required: true
+        type: choice
+        options: [development, staging, production]
+      image_tag:
+        description: Image tag (git SHA) to roll back to.
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  rollback:
+    name: Rollback ${{ inputs.environment }} → ${{ inputs.image_tag }}
+    if: vars.AWS_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Redeploy previous image via SSM
+        run: |
+          ENV_TAG=$(echo "${{ inputs.environment }}" | sed 's/development/dev/;s/production/prod/')
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --targets "Key=tag:app,Values=todo,Key=tag:env,Values=$ENV_TAG" \
+            --comment "Rollback to ${{ inputs.image_tag }}" \
+            --parameters 'commands=["cd /opt/todo && IMAGE_TAG=${{ inputs.image_tag }} docker compose pull && IMAGE_TAG=${{ inputs.image_tag }} docker compose up -d"]' \
+            --region "${{ vars.AWS_REGION }}"
+
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "${{ vars.HEALTH_URL }}") || true
+            [ "$code" = "200" ] && echo "healthy" && exit 0
+            sleep 5
+          done
+          echo "rollback health check failed" && exit 1

@@ -1,7 +1,25 @@
 # CI/CD Strategy — GitHub Actions
 
-> **Status:** Draft v1.0 · **Owner:** DevOps · Build → Test → Lint → Scan → Image → ECR → Deploy → Rollback.
+> **Status:** Implemented (Phase 7) · **Owner:** DevOps · Build → Test → Lint → Scan → Image → ECR → Deploy → Rollback.
 > Auth to AWS via **OIDC** (no long-lived keys). Immutable image tags (git SHA).
+
+## Implemented workflows (Phase 7)
+
+| File             | Trigger                            | What                                                                                                                                                         |
+| ---------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ci.yml`         | PR + push                          | `verify` (lint/typecheck/format/coverage), `e2e` (Playwright), `security` (npm audit, gitleaks, Trivy fs→SARIF), `docker-build` (build both images, no push) |
+| `codeql.yml`     | PR/push to main·develop + weekly   | CodeQL SAST (security-extended)                                                                                                                              |
+| `cd-dev.yml`     | push `develop`                     | build+push to ECR (OIDC) + SSM deploy + smoke                                                                                                                |
+| `cd-staging.yml` | push `staging`                     | build+push + deploy + **E2E against the deployed URL**                                                                                                       |
+| `cd-prod.yml`    | manual dispatch (`image_tag`)      | **promote the exact digest** (`imagetools` retag, no rebuild) + gated deploy                                                                                 |
+| `rollback.yml`   | manual dispatch (env, `image_tag`) | redeploy a previous immutable tag                                                                                                                            |
+| `dependabot.yml` | weekly                             | npm + actions + docker updates                                                                                                                               |
+
+**Runs without AWS:** `verify`, `e2e`, `security`, `docker-build`, CodeQL — full value on every PR.
+
+### Required setup to enable deploys (wired-but-gated)
+
+The `cd-*` and `rollback` jobs are guarded by `if: vars.AWS_DEPLOY_ENABLED == 'true'` and skip cleanly until configured. To enable, set repository/environment **variables**: `AWS_DEPLOY_ENABLED=true`, `AWS_ROLE_ARN` (OIDC role), `AWS_REGION`, `ECR_REGISTRY`, `API_BASE_URL`, `HEALTH_URL`, `STAGING_URL`; create ECR repos `todo-backend` / `todo-frontend`; and configure `development`/`staging`/`production` GitHub Environments (production with required reviewers). No long-lived secrets — OIDC only.
 
 ---
 

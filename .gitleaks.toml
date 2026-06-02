@@ -1,0 +1,24 @@
+# gitleaks config (docs/security.md §5). Extends the default ruleset; allowlists
+# the known non-secret fixtures in the repo (test/dummy values, .env.example).
+title = "todo-app gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Non-secret fixtures and documented placeholders"
+paths = [
+  '''.*\.env\.example$''',
+  '''backend/src/test/.*''',
+  '''e2e/.*''',
+  '''docs/.*''',
+]
+regexes = [
+  # Documented throwaway values, not real secrets.
+  '''change-me-min-32-chars-long-secret-value''',
+  '''dev-secret-dev-secret-dev-secret-0123''',
+  '''e2e-secret-e2e-secret-e2e-secret-0123''',
+  '''test-secret-test-secret-test-secret-0123''',
+  # Precomputed argon2 dummy hash used for login timing equalization (SF-1).
+  '''\$argon2id\$v=19\$m=65536,t=3,p=4\$JW7GCf3NBCw1LDcRT3OHgQ\$.*''',
+]
