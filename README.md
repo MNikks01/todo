@@ -42,9 +42,15 @@ This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the ope
 
 ## Status
 
-**Phase 0 — Documentation & Design.** Implementation has not started; see the roadmap for what unlocks each phase.
+**Phase 2 — Authentication & RBAC: complete.** Phases done so far:
 
-## Getting Started (once Phase 1+ lands)
+- **Phase 0** — full documentation system + `.claude` operating system.
+- **Phase 1** — monorepo tooling: strict TS, ESLint (with Clean-Architecture boundary rules), Prettier, Husky/commitlint, Zod config loaders, CI.
+- **Phase 2** — backend auth: register/login, JWT access + rotating refresh (reuse detection + family revoke), per-account lockout, CSRF, RBAC, audit logging, `users` admin module, 62 tests (auth service 100% lines). See [docs/roadmap.md](docs/roadmap.md).
+
+Next: **Phase 3 — Todos feature + frontend vertical slice.**
+
+## Getting Started
 
 ```bash
 make setup     # first-time local setup

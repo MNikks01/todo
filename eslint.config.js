@@ -76,10 +76,16 @@ export default tseslint.config(
     },
   },
 
-  // Backend — only the infrastructure layer may import Mongoose.
+  // Backend — only the infrastructure layer may import Mongoose. Tests are
+  // exempt (they set up the DB and assert on models directly).
   {
     files: ['backend/src/**/*.ts'],
-    ignores: ['backend/src/**/infrastructure/**', 'backend/src/infrastructure/**'],
+    ignores: [
+      'backend/src/**/infrastructure/**',
+      'backend/src/infrastructure/**',
+      'backend/src/test/**',
+      'backend/src/**/*.test.ts',
+    ],
     rules: {
       'no-restricted-imports': [
         'error',
