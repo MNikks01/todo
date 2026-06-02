@@ -18,7 +18,7 @@
     "e2e:server": "tsx scripts/e2e-server.ts"
   },
   "dependencies": {
-    "argon2": "^0.41.1",
+    "argon2": "^0.44.0",
     "compression": "^1.7.5",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
