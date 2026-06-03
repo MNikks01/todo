@@ -1,3 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind v4: a single import replaces the v3 @tailwind base/components/utilities
+   directives. Source files are auto-detected; theme is configured in CSS via
+   @theme if needed (docs/aws unaffected). */
+@import 'tailwindcss';
