@@ -3,7 +3,7 @@
 # bookworm-slim (glibc) is used over alpine so argon2's prebuilt binaries load
 # without a from-source compile.
 
-FROM node:22-bookworm-slim AS base
+FROM node:26-bookworm-slim AS base
 WORKDIR /app
 
 # --- Build: full install + tsc ---

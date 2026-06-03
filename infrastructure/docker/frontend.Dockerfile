@@ -3,7 +3,7 @@
 # Build context = repo root. VITE_API_BASE_URL is baked at build time (Vite
 # inlines it); override per environment via build-arg.
 
-FROM node:22-bookworm-slim AS build
+FROM node:26-bookworm-slim AS build
 WORKDIR /app
 ARG VITE_API_BASE_URL=http://localhost:3000/api/v1
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
