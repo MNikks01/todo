@@ -48,12 +48,12 @@ export class MongoUserRepository implements UserRepository {
   }
 
   async setRole(id: string, role: Role): Promise<User | null> {
-    const doc = await UserModel.findByIdAndUpdate(id, { role }, { new: true });
+    const doc = await UserModel.findByIdAndUpdate(id, { role }, { returnDocument: 'after' });
     return doc ? toDomain(doc) : null;
   }
 
   async setStatus(id: string, status: AccountStatus): Promise<User | null> {
-    const doc = await UserModel.findByIdAndUpdate(id, { status }, { new: true });
+    const doc = await UserModel.findByIdAndUpdate(id, { status }, { returnDocument: 'after' });
     return doc ? toDomain(doc) : null;
   }
 }

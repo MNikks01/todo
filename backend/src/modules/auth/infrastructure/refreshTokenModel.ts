@@ -2,10 +2,10 @@
  * Mongoose model for refresh tokens (docs/database.md §2.3, §3).
  * TTL index on `expiresAt` auto-removes expired tokens.
  */
-import { type HydratedDocument, model, Schema } from 'mongoose';
+import { type HydratedDocument, model, Schema, type Types } from 'mongoose';
 
 export interface RefreshTokenDocument {
-  userId: Schema.Types.ObjectId;
+  userId: Types.ObjectId;
   tokenHash: string;
   family: string;
   expiresAt: Date;

@@ -3,7 +3,7 @@
  * and `deletedAt: null`; invalid ids resolve to "not found" rather than throwing
  * (ADR-0007, docs/security.md §3).
  */
-import { type FilterQuery, type SortOrder, Types } from 'mongoose';
+import { type QueryFilter, type SortOrder, Types } from 'mongoose';
 import type { Priority, Todo } from '../domain/todo.js';
 import type {
   CreateTodoInput,
@@ -56,7 +56,7 @@ export class MongoTodoRepository implements TodoRepository {
   }
 
   async query(query: TodoQuery): Promise<TodoPage> {
-    const filter: FilterQuery<TodoDocument> = { userId: query.userId, deletedAt: null };
+    const filter: QueryFilter<TodoDocument> = { userId: query.userId, deletedAt: null };
     if (query.completed !== undefined) filter.completed = query.completed;
     if (query.priority !== undefined) filter.priority = query.priority;
     if (query.tag !== undefined) filter.tags = query.tag;
@@ -87,7 +87,7 @@ export class MongoTodoRepository implements TodoRepository {
     if (changes.tags !== undefined) update.tags = changes.tags;
 
     const doc = await TodoModel.findOneAndUpdate({ _id: id, userId, deletedAt: null }, update, {
-      new: true,
+      returnDocument: 'after',
     });
     return doc ? toDomain(doc) : null;
   }
@@ -110,7 +110,7 @@ export class MongoTodoRepository implements TodoRepository {
     const doc = await TodoModel.findOneAndUpdate(
       { _id: id, userId, deletedAt: { $ne: null } },
       { deletedAt: null },
-      { new: true },
+      { returnDocument: 'after' },
     );
     return doc ? toDomain(doc) : null;
   }

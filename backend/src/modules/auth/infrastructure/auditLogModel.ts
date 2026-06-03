@@ -1,12 +1,12 @@
 /**
  * Mongoose model for audit logs (docs/database.md §2.4). Append-only in practice.
  */
-import { model, Schema } from 'mongoose';
+import { model, Schema, type Types } from 'mongoose';
 
 export interface AuditLogDocument {
-  actorId: Schema.Types.ObjectId | null;
+  actorId: Types.ObjectId | null;
   action: string;
-  targetId: Schema.Types.ObjectId | null;
+  targetId: Types.ObjectId | null;
   correlationId: string | null;
   metadata: Record<string, unknown>;
   createdAt: Date;
