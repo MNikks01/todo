@@ -27,7 +27,9 @@ export function validate(schemas: RequestSchemas): RequestHandler {
         req.body = schemas.body.parse(req.body) as typeof req.body;
       }
       if (schemas.query) {
-        req.query = schemas.query.parse(req.query) as typeof req.query;
+        // `req.query` is a read-only getter in Express 5; stash the validated,
+        // coerced result on `req.validatedQuery` for controllers to read.
+        req.validatedQuery = schemas.query.parse(req.query);
       }
       if (schemas.params) {
         req.params = schemas.params.parse(req.params) as typeof req.params;

@@ -2,11 +2,11 @@
  * Mongoose model for todos (docs/database.md §2.2, §3). Indexes are designed for
  * the owner-scoped list/filter/sort/search hot paths.
  */
-import { type HydratedDocument, model, Schema } from 'mongoose';
+import { type HydratedDocument, model, Schema, type Types } from 'mongoose';
 import { PRIORITIES } from '../domain/todo.js';
 
 export interface TodoDocument {
-  userId: Schema.Types.ObjectId;
+  userId: Types.ObjectId;
   title: string;
   description: string | null;
   completed: boolean;
