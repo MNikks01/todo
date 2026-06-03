@@ -25,6 +25,7 @@ provider "aws" {
     logs       = "http://localhost:4566"
     cloudwatch = "http://localhost:4566"
     ssm        = "http://localhost:4566"
+    sns        = "http://localhost:4566"
   }
 
   default_tags {

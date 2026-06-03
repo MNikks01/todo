@@ -9,7 +9,7 @@ services:
       - '4566:4566' # single edge endpoint for all services
     environment:
       # Community services we exercise (docs/aws-free-tier-learning-plan.md):
-      SERVICES: iam,sts,ec2,s3,ecr,logs,cloudwatch,ssm
+      SERVICES: iam,sts,ec2,s3,ecr,logs,cloudwatch,ssm,sns
       DEBUG: '0'
       LOCALSTACK_HOST: localhost
     volumes:

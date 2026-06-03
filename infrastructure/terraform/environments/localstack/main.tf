@@ -89,3 +89,36 @@ resource "aws_instance" "app" {
   iam_instance_profile   = aws_iam_instance_profile.app.name
   tags                   = { Name = "todo-localstack-host", app = "todo", env = "localstack" }
 }
+
+# --- SNS: the alert channel (where alarms publish notifications) ---
+resource "aws_sns_topic" "alerts" {
+  name = "todo-localstack-alerts"
+}
+
+# A subscription so you can see the wiring. (LocalStack won't deliver real email,
+# but the resource + subscription exist to inspect.)
+resource "aws_sns_topic_subscription" "email" {
+  topic_arn = aws_sns_topic.alerts.arn
+  protocol  = "email"
+  endpoint  = "you@example.com"
+}
+
+# --- CloudWatch alarm on the app's own Errors metric → SNS ---
+# In real AWS this fires on actual 5xx (the API emits Todo/API:Errors via EMF).
+# In LocalStack there's no data yet, so it starts INSUFFICIENT_DATA — push a data
+# point with the AWS CLI to flip it to ALARM (see the env README / your guide).
+resource "aws_cloudwatch_metric_alarm" "high_errors" {
+  alarm_name          = "todo-localstack-high-errors"
+  alarm_description   = "API server errors detected"
+  namespace           = "Todo/API"
+  metric_name         = "Errors"
+  dimensions          = { service = "todo-api", env = "localstack" }
+  statistic           = "Sum"
+  period              = 60
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+  ok_actions          = [aws_sns_topic.alerts.arn]
+}
