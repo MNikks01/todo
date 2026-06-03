@@ -46,5 +46,20 @@ reset-db: ## Reset local DB (destructive, local only)
 rebuild: ## Rebuild images without cache
 	docker compose build --no-cache
 
+LS_COMPOSE := infrastructure/docker/compose/docker-compose.localstack.yml
+LS_ENV := infrastructure/terraform/environments/localstack
+
+localstack-up: ## Start LocalStack (emulated AWS, ₹0 — no real account)
+	docker compose -f $(LS_COMPOSE) up -d
+
+localstack-down: ## Stop LocalStack
+	docker compose -f $(LS_COMPOSE) down -v
+
+localstack-apply: ## terraform apply the learning stack against LocalStack
+	cd $(LS_ENV) && terraform init -input=false && terraform apply -auto-approve
+
+localstack-destroy: ## Tear down the LocalStack learning stack
+	cd $(LS_ENV) && terraform destroy -auto-approve
+
 clean: ## Remove build artifacts and node_modules
 	rm -rf node_modules **/node_modules **/dist **/coverage

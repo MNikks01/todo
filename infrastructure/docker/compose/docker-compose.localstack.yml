@@ -1,0 +1,26 @@
+# LocalStack — a local AWS emulator for ₹0, zero-risk hands-on learning.
+# No real AWS account is involved, so a bill is impossible.
+# Start:  docker compose -f infrastructure/docker/compose/docker-compose.localstack.yml up -d
+# (or `make localstack-up`). Terraform points at http://localhost:4566.
+services:
+  localstack:
+    image: localstack/localstack:3
+    ports:
+      - '4566:4566' # single edge endpoint for all services
+    environment:
+      # Community services we exercise (docs/aws-free-tier-learning-plan.md):
+      SERVICES: iam,sts,ec2,s3,ecr,logs,cloudwatch,ssm,sns
+      DEBUG: '0'
+      LOCALSTACK_HOST: localhost
+    volumes:
+      - localstack-data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ['CMD', 'curl', '-sf', 'http://localhost:4566/_localstack/health']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+volumes:
+  localstack-data:
