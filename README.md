@@ -33,6 +33,11 @@ A multi-user Todo app built as a **learning vehicle for production engineering**
 | [docs/testing.md](docs/testing.md)                                         | Test pyramid, coverage gates                                       |
 | [docs/adr/](docs/adr/)                                                     | Architecture Decision Records                                      |
 
+## How to run it
+
+See **[RUNNING.md](RUNNING.md)** — every command, what it does under the hood, how
+to access the app, ports, the E2E/LocalStack flows, and troubleshooting.
+
 ## Operating System for AI Assistance
 
 This repo is driven with **Claude Code**. See [CLAUDE.md](CLAUDE.md) for the operating guide and [.claude/](.claude/) for agents, rules, commands, skills, and output styles.
