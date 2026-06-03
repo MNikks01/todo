@@ -134,7 +134,7 @@ jobs:
 
       # Build both images to validate the Dockerfiles on every PR (no push).
       - name: Build backend image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: infrastructure/docker/backend.Dockerfile
@@ -143,7 +143,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build frontend image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: infrastructure/docker/frontend.Dockerfile
