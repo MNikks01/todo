@@ -4,7 +4,6 @@
 // backend Clean-Architecture layering (no Mongoose/infra leaking inward).
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import importPlugin from 'eslint-plugin-import';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 
@@ -28,7 +27,6 @@ export default tseslint.config(
   // Project-wide TypeScript rules.
   {
     files: ['**/*.{ts,tsx}'],
-    plugins: { import: importPlugin },
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
