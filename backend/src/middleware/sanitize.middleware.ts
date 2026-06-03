@@ -27,12 +27,12 @@ export const sanitizeRequest: RequestHandler = (req, _res, next) => {
   if (req.body && typeof req.body === 'object') {
     req.body = sanitize(req.body);
   }
-  if (req.query && typeof req.query === 'object') {
-    req.query = sanitize(req.query) as typeof req.query;
-  }
   if (req.params && typeof req.params === 'object') {
     req.params = sanitize(req.params) as typeof req.params;
   }
+  // `req.query` is a read-only getter in Express 5 and cannot be replaced.
+  // Query inputs are validated per-route with Zod `.strict()` (unknown keys
+  // rejected) + coercion, which already blocks operator injection.
   next();
 };
 

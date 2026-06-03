@@ -16,7 +16,7 @@ export class UserController {
   ) {}
 
   list = async (req: Request, res: Response): Promise<void> => {
-    const { limit, skip } = req.query as unknown as ListUsersQuery;
+    const { limit, skip } = req.validatedQuery as ListUsersQuery;
     const users = await this.users.listUsers({ limit, skip });
     res.status(200).json({ users: users.map(toUserDto), pagination: { limit, skip } });
   };

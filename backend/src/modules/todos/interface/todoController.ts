@@ -17,7 +17,7 @@ export class TodoController {
   };
 
   list = async (req: Request, res: Response): Promise<void> => {
-    const q = req.query as unknown as ListTodosQuery;
+    const q = req.validatedQuery as ListTodosQuery;
     const { items, total } = await this.todos.list({ userId: req.user!.id, ...q });
     res.status(200).json({
       todos: items.map(toTodoDto),
